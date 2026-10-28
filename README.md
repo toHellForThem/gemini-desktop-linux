@@ -53,6 +53,11 @@ not a proper fork with a clean history.
 2. `chmod +x Gemini-Desktop-*.AppImage`
 3. Run it.
 
+> This repository is a reference/patched source tree. It does not include
+> `node_modules` or the native binaries. Use the AppImage from Releases to run
+> the app, or run `npm install` and `scripts/restore-llama-binaries.sh` to build
+> from source.
+
 If text prediction fails to load the native addon, run:
 
 ```bash
