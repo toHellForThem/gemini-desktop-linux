@@ -42,15 +42,21 @@ Thumbs.db
 /resources/app/node_modules/
 /resources/app.asar.bak
 
+# AppImage root metadata (not part of the app source)
+/.DirIcon
+/gemini-desktop.desktop
+/gemini-desktop.png
+/LICENSES.chromium.html
+
 # Release artifacts
 *.AppImage
 *.deb
 *.rpm
 *.zip
 *.tar.gz
-dist/
-out/
-release/
+/dist/
+/out/
+/release/
 
 # Secrets / local env
 .env
