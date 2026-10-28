@@ -1,0 +1,10 @@
+# NOTE (Linux fork): auto-updates are disabled in code (see
+# dist-electron/main/managers/updateManager.cjs). This file still points at
+# the upstream repository and is intentionally unused. Re-enable updates only
+# after pointing owner/repo at this fork.
+owner: bwendell
+repo: gemini-desktop
+provider: github
+releaseType: release
+timeout: 600000
+updaterCacheDirName: gemini-desktop-updater

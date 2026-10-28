@@ -1,0 +1,124 @@
+"use strict";
+/**
+ * IPC Channel Constants
+ *
+ * Centralized IPC channel names for communication between main and renderer processes.
+ * This ensures type safety and consistency across the application.
+ *
+ * @module shared/constants/ipc-channels
+ */
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.IPC_CHANNELS = void 0;
+/**
+ * IPC channel names used for main process <-> renderer communication.
+ * Centralized to ensure consistency between ipcMain handlers and ipcRenderer calls.
+ */
+exports.IPC_CHANNELS = {
+    // Window controls
+    WINDOW_MINIMIZE: 'window-minimize',
+    WINDOW_MAXIMIZE: 'window-maximize',
+    WINDOW_CLOSE: 'window-close',
+    WINDOW_SHOW: 'window-show',
+    WINDOW_IS_MAXIMIZED: 'window-is-maximized',
+    WINDOW_IS_FULLSCREEN: 'window-is-fullscreen',
+    FULLSCREEN_TOGGLE: 'window-toggle-fullscreen',
+    FULLSCREEN_CHANGED: 'window-fullscreen-changed',
+    // Theme
+    THEME_GET: 'theme:get',
+    THEME_SET: 'theme:set',
+    THEME_CHANGED: 'theme:changed',
+    // App
+    OPEN_OPTIONS: 'open-options-window',
+    OPEN_GOOGLE_SIGNIN: 'open-google-signin',
+    APP_RESTART: 'app:restart',
+    APP_QUIT: 'app:quit',
+    // Quick Chat
+    QUICK_CHAT_SUBMIT: 'quick-chat:submit',
+    QUICK_CHAT_HIDE: 'quick-chat:hide',
+    QUICK_CHAT_CANCEL: 'quick-chat:cancel',
+    QUICK_CHAT_EXECUTE: 'quick-chat:execute',
+    // Gemini Iframe Navigation (for Quick Chat integration)
+    GEMINI_NAVIGATE: 'gemini:navigate',
+    GEMINI_READY: 'gemini:ready',
+    TABS_GET_STATE: 'tabs:get-state',
+    TABS_SAVE_STATE: 'tabs:save-state',
+    TABS_UPDATE_TITLE: 'tabs:update-title',
+    TABS_TITLE_UPDATED: 'tabs:title-updated',
+    TABS_SHORTCUT_TRIGGERED: 'tabs:shortcut-triggered',
+    TABS_RELOAD: 'tabs:reload',
+    // Always On Top
+    ALWAYS_ON_TOP_GET: 'always-on-top:get',
+    ALWAYS_ON_TOP_SET: 'always-on-top:set',
+    ALWAYS_ON_TOP_CHANGED: 'always-on-top:changed',
+    // Zoom
+    ZOOM_GET_LEVEL: 'zoom:get-level',
+    ZOOM_IN: 'zoom:zoom-in',
+    ZOOM_OUT: 'zoom:zoom-out',
+    ZOOM_LEVEL_CHANGED: 'zoom:level-changed',
+    // Individual Hotkeys
+    HOTKEYS_INDIVIDUAL_GET: 'hotkeys:individual:get',
+    HOTKEYS_INDIVIDUAL_SET: 'hotkeys:individual:set',
+    HOTKEYS_INDIVIDUAL_CHANGED: 'hotkeys:individual:changed',
+    // Hotkey Accelerators
+    HOTKEYS_ACCELERATOR_GET: 'hotkeys:accelerator:get',
+    HOTKEYS_ACCELERATOR_SET: 'hotkeys:accelerator:set',
+    HOTKEYS_ACCELERATOR_CHANGED: 'hotkeys:accelerator:changed',
+    HOTKEYS_FULL_SETTINGS_GET: 'hotkeys:full-settings:get',
+    // Auto-Update
+    AUTO_UPDATE_GET_ENABLED: 'auto-update:get-enabled',
+    AUTO_UPDATE_SET_ENABLED: 'auto-update:set-enabled',
+    AUTO_UPDATE_CHECK: 'auto-update:check',
+    AUTO_UPDATE_INSTALL: 'auto-update:install',
+    AUTO_UPDATE_GET_LAST_CHECK: 'auto-update:get-last-check',
+    AUTO_UPDATE_AVAILABLE: 'auto-update:available',
+    AUTO_UPDATE_DOWNLOADED: 'auto-update:downloaded',
+    AUTO_UPDATE_ERROR: 'auto-update:error',
+    AUTO_UPDATE_CHECKING: 'auto-update:checking',
+    AUTO_UPDATE_NOT_AVAILABLE: 'auto-update:not-available',
+    AUTO_UPDATE_DOWNLOAD_PROGRESS: 'auto-update:download-progress',
+    AUTO_UPDATE_MANUAL_UPDATE_AVAILABLE: 'auto-update:manual-update-available',
+    // Tray
+    TRAY_GET_TOOLTIP: 'tray:get-tooltip',
+    EXPORT_CHAT_PDF: 'export-chat:pdf',
+    EXPORT_CHAT_MARKDOWN: 'export-chat:markdown',
+    // Toast (main process → renderer notifications)
+    TOAST_SHOW: 'toast:show',
+    // Shell (filesystem operations)
+    SHELL_SHOW_ITEM_IN_FOLDER: 'shell:show-item-in-folder',
+    // Response Notifications
+    RESPONSE_NOTIFICATIONS_GET_ENABLED: 'response-notifications:get-enabled',
+    RESPONSE_NOTIFICATIONS_SET_ENABLED: 'response-notifications:set-enabled',
+    // Smart Enter & Chat Scroll
+    SMART_ENTER_GET_ENABLED: 'smart-enter:get-enabled',
+    SMART_ENTER_SET_ENABLED: 'smart-enter:set-enabled',
+    SCROLL_TO_BOTTOM_GET_ENABLED: 'scroll-to-bottom:get-enabled',
+    SCROLL_TO_BOTTOM_SET_ENABLED: 'scroll-to-bottom:set-enabled',
+    // Launch at Startup
+    LAUNCH_AT_STARTUP_GET: 'launch-at-startup:get',
+    LAUNCH_AT_STARTUP_SET: 'launch-at-startup:set',
+    START_MINIMIZED_GET: 'start-minimized:get',
+    START_MINIMIZED_SET: 'start-minimized:set',
+    // Text Prediction (local LLM inference)
+    TEXT_PREDICTION_GET_ENABLED: 'text-prediction:get-enabled',
+    TEXT_PREDICTION_SET_ENABLED: 'text-prediction:set-enabled',
+    TEXT_PREDICTION_GET_GPU_ENABLED: 'text-prediction:get-gpu-enabled',
+    TEXT_PREDICTION_SET_GPU_ENABLED: 'text-prediction:set-gpu-enabled',
+    TEXT_PREDICTION_GET_STATUS: 'text-prediction:get-status',
+    TEXT_PREDICTION_STATUS_CHANGED: 'text-prediction:status-changed',
+    TEXT_PREDICTION_DOWNLOAD_PROGRESS: 'text-prediction:download-progress',
+    TEXT_PREDICTION_PREDICT: 'text-prediction:predict',
+    // Platform Status
+    PLATFORM_HOTKEY_STATUS_GET: 'platform:hotkey-status:get',
+    PLATFORM_HOTKEY_STATUS_CHANGED: 'platform:hotkey-status:changed',
+    // Test-only: D-Bus activation signal tracking (Wayland integration tests)
+    DBUS_ACTIVATION_SIGNAL_STATS_GET: 'test:dbus:activation-signal-stats:get',
+    DBUS_ACTIVATION_SIGNAL_HISTORY_CLEAR: 'test:dbus:activation-signal-history:clear',
+    // Dev Testing (only used in development for manual testing)
+    DEV_TEST_SHOW_BADGE: 'dev:test:show-badge',
+    DEV_TEST_CLEAR_BADGE: 'dev:test:clear-badge',
+    DEV_TEST_SET_UPDATE_ENABLED: 'dev:test:set-update-enabled',
+    DEV_TEST_EMIT_UPDATE_EVENT: 'dev:test:emit-update-event',
+    DEV_TEST_MOCK_PLATFORM: 'dev:test:mock-platform',
+    DEV_TEST_TRIGGER_RESPONSE_NOTIFICATION: 'dev:test:trigger-response-notification',
+    DEBUG_TRIGGER_ERROR: 'debug-trigger-error',
+};

@@ -1,0 +1,59 @@
+# Dependencies
+node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Local backups
+*.bak
+*.orig
+*.rej
+
+# Model weights (never commit these)
+*.gguf
+*.ggml
+
+# Native binaries / build artifacts (ship via Releases, not git)
+*.so
+*.so.*
+*.node
+*.dylib
+*.dll
+
+# Extracted AppImage contents (if you publish patches instead of the build)
+/gemini-desktop
+/AppRun
+/chrome-sandbox
+/chrome_crashpad_handler
+/*.pak
+/*.dat
+/*.bin
+/*.json
+/locales/
+/usr/
+/resources/app.asar.unpacked/
+/resources/app/node_modules/
+/resources/app.asar.bak
+
+# Release artifacts
+*.AppImage
+*.deb
+*.rpm
+*.zip
+*.tar.gz
+dist/
+out/
+release/
+
+# Secrets / local env
+.env
+.env.*
+*.pem
+*.key
