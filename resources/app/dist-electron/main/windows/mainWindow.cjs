@@ -151,7 +151,13 @@ class MainWindow extends baseWindow_1.default {
             }
         });
         // Handle page load failures (network errors, DNS failures, etc.)
-        this.window.webContents.on('did-fail-load', (_event, errorCode, errorDescription, validatedURL) => {
+        this.window.webContents.on('did-fail-load', (_event, errorCode, errorDescription, validatedURL, isMainFrame) => {
+            // Subframe failures are expected: we deliberately cancel Google
+            // sign-in subframe requests (ERR_BLOCKED_BY_CLIENT) and re-open
+            // them as a top-level navigation. Only log main-frame failures.
+            if (!isMainFrame) {
+                return;
+            }
             this.logger.error('Main window failed to load:', {
                 errorCode,
                 errorDescription,
@@ -298,7 +304,7 @@ class MainWindow extends baseWindow_1.default {
             this.logger.log(`Intercepting subframe Google sign-in (${source}):`, url);
             // Use the main window for sign-in: it is a top-level navigation,
             // so Google accepts it, and the shared session keeps the cookies.
-            this.startMainWindowAuth(url);
+            setImmediate(() => this.startMainWindowAuth(url));
         };
         // Primary handler: fires for renderer-initiated subframe navigations.
         this.window.webContents.on('will-frame-navigate', (event, url, isMainFrame) => {
@@ -332,6 +338,9 @@ class MainWindow extends baseWindow_1.default {
                 // While the main window is showing the Google sign-in page, do
                 // not cancel its subframe requests.
                 if (this.isAuthMode) {
+                    if (details.resourceType === 'mainFrame') {
+                        this.logger.log('Allowing main-frame auth navigation:', details.url);
+                    }
                     callback({});
                     return;
                 }
@@ -373,9 +382,6 @@ class MainWindow extends baseWindow_1.default {
             return;
         }
         this.isAuthMode = true;
-        // The main window uses the app preload, so register the shared
-        // Edge-like header spoofing before navigating to Google.
-        (0, authSpoofing_1.registerAuthHeaderSpoofing)();
         this.logger.log('Starting Google sign-in in main window:', url);
         this.window.loadURL(url).catch((error) => {
             this.logger.error('Failed to load Google sign-in in main window:', {

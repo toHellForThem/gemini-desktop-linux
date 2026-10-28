@@ -109,6 +109,26 @@ function resolveNodeLlamaCppPackageJson() {
     throw new Error('node-llama-cpp package.json not found');
 }
 /**
+ * Detect whether the CPU supports AVX2, which the prebuilt node-llama-cpp
+ * binaries require. On non-Linux platforms we assume support (the prebuilt
+ * packages for macOS/Windows target modern CPUs).
+ *
+ * On Linux we read /proc/cpuinfo. If it cannot be read, assume support so we
+ * do not disable the feature on systems where detection is unavailable.
+ */
+function isCpuAvx2Supported() {
+    if (process.platform !== 'linux') {
+        return true;
+    }
+    try {
+        const cpuinfo = (0, fs_1.readFileSync)('/proc/cpuinfo', 'utf-8');
+        return /\bavx2\b/.test(cpuinfo);
+    }
+    catch {
+        return true;
+    }
+}
+/**
  * Registry of supported models.
  * Add new models here to extend LLM support.
  *
@@ -294,6 +314,13 @@ class LlmManager {
             return this.ensureNativeAvailable(context);
         }
         return this.nativeAvailable === true;
+    }
+    /**
+     * Whether the CPU can run the prebuilt node-llama-cpp binaries.
+     * These require AVX2; older CPUs (e.g. Sandy Bridge) crash with SIGILL.
+     */
+    isCpuSupported() {
+        return isCpuAvx2Supported();
     }
     /**
      * Register a listener for status changes.

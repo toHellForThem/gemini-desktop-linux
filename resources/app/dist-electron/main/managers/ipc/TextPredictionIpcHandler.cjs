@@ -85,6 +85,11 @@ class TextPredictionIpcHandler extends BaseIpcHandler_1.BaseIpcHandler {
                 this.logger.log('Text prediction disabled, skipping model load');
                 return;
             }
+            if (this.deps.llmManager && !this.deps.llmManager.isCpuSupported()) {
+                this.logger.warn('Text prediction disabled: CPU lacks AVX2 required by prebuilt node-llama-cpp binaries');
+                this._broadcastStatusChange();
+                return;
+            }
             if (process.env.NODE_ENV !== 'test') {
                 this.deps.llmNativeAvailable = this.deps.llmManager.ensureNativeAvailable('initializeOnStartup');
             }
@@ -157,6 +162,11 @@ class TextPredictionIpcHandler extends BaseIpcHandler_1.BaseIpcHandler {
             this.logger.log(`Text prediction enabled set to: ${enabled}`);
             // If enabling and LlmManager exists, trigger model download/load if needed
             if (enabled && this.deps.llmManager) {
+                if (!this.deps.llmManager.isCpuSupported()) {
+                    this.logger.warn('Text prediction enable requested but CPU lacks AVX2 required by prebuilt node-llama-cpp binaries');
+                    this._broadcastStatusChange();
+                    return;
+                }
                 // node-llama-cpp runs in an isolated sidecar process, so the
                 // main-process V8 sandbox no longer blocks text prediction.
                 const skipNativeOperations = process.env.CI === 'true' || process.argv.includes('--integration-test');
@@ -325,6 +335,7 @@ class TextPredictionIpcHandler extends BaseIpcHandler_1.BaseIpcHandler {
      */
     _getStatus() {
         const enabled = this.deps.store.get('textPredictionEnabled') ?? false;
+        const cpuSupported = this.deps.llmManager?.isCpuSupported() ?? true;
         const nativeAvailable = enabled
             ? (this.deps.llmNativeAvailable ?? this.deps.llmManager?.isNativeAvailable() ?? false)
             : true;
@@ -332,9 +343,15 @@ class TextPredictionIpcHandler extends BaseIpcHandler_1.BaseIpcHandler {
         const storedStatus = this.deps.store.get('textPredictionModelStatus');
         // node-llama-cpp runs in an isolated sidecar process, so the
         // main-process V8 sandbox no longer requires a restart.
-        const status = nativeAvailable ? (modelStatus ?? storedStatus ?? 'not-downloaded') : 'error';
-        const errorMessage = this.deps.llmManager?.getErrorMessage() ??
-            (!nativeAvailable ? (this.deps.llmManager?.getNativeProbeError() ?? undefined) : undefined);
+        const status = !cpuSupported
+            ? 'error'
+            : nativeAvailable
+                ? (modelStatus ?? storedStatus ?? 'not-downloaded')
+                : 'error';
+        const errorMessage = !cpuSupported
+            ? 'Local text prediction requires a CPU with AVX2. This CPU does not support it.'
+            : (this.deps.llmManager?.getErrorMessage() ??
+                (!nativeAvailable ? (this.deps.llmManager?.getNativeProbeError() ?? undefined) : undefined));
         const settings = {
             enabled,
             gpuEnabled: this.deps.store.get('textPredictionGpuEnabled') ?? false,

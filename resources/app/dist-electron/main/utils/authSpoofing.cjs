@@ -33,6 +33,18 @@ function getAuthUserAgent() {
     return `Mozilla/5.0 (${getPlatformToken()}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeVersion} Safari/537.36 Edg/${chromeVersion}`;
 }
 
+/**
+ * Plain Chrome User-Agent (no Electron/Edg tokens).
+ *
+ * Use this for windows that do NOT stub navigator.userAgentData: the default
+ * Chromium client hints then stay consistent with the UA. The Edge UA is only
+ * safe together with the authPreload.cjs stubs used by AuthWindow.
+ */
+function getChromeUserAgent() {
+    const chromeVersion = getChromeVersion();
+    return `Mozilla/5.0 (${getPlatformToken()}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeVersion} Safari/537.36`;
+}
+
 function getAuthPlatform() {
     if (process.platform === 'darwin') {
         return 'macOS';
@@ -104,9 +116,43 @@ function registerAuthHeaderSpoofing() {
     });
 }
 
+/**
+ * Anti-detection script injected into Google sign-in pages before any page
+ * script runs (via CDP Page.addScriptToEvaluateOnNewDocument). Chrome-branded
+ * so it stays consistent with the plain Chrome UA used by the main window.
+ */
+const AUTH_STUB_SCRIPT = `
+    try { Object.defineProperty(navigator, 'webdriver', { get: () => false }); } catch (e) {}
+    try {
+        if (!window.chrome) {
+            window.chrome = { runtime: {}, loadTimes: function() {}, csi: function() {}, app: {} };
+        }
+    } catch (e) {}
+    try { Object.defineProperty(navigator, 'languages', { get: () => ['en-US', 'en'] }); } catch (e) {}
+    try { Object.defineProperty(navigator, 'pdfViewerEnabled', { get: () => true }); } catch (e) {}
+    try {
+        const pluginData = [
+            { name: 'PDF Viewer', filename: 'internal-pdf-viewer', description: 'Portable Document Format' },
+            { name: 'Chrome PDF Viewer', filename: 'internal-pdf-viewer', description: 'Portable Document Format' },
+            { name: 'Chromium PDF Viewer', filename: 'internal-pdf-viewer', description: 'Portable Document Format' },
+            { name: 'Microsoft Edge PDF Viewer', filename: 'internal-pdf-viewer', description: 'Portable Document Format' },
+            { name: 'WebKit built-in PDF', filename: 'internal-pdf-viewer', description: 'Portable Document Format' },
+        ];
+        const plugins = pluginData.map((plugin) => ({ ...plugin, length: 1, item: () => null, namedItem: () => null }));
+        plugins.item = (index) => plugins[index] || null;
+        plugins.namedItem = (name) => plugins.find((plugin) => plugin.name === name) || null;
+        Object.defineProperty(navigator, 'plugins', { get: () => plugins });
+        Object.defineProperty(navigator, 'mimeTypes', {
+            get: () => [{ type: 'application/pdf', suffixes: 'pdf', description: 'Portable Document Format', enabledPlugin: plugins[0] }],
+        });
+    } catch (e) {}
+`;
+
 module.exports = {
     getAuthUserAgent,
+    getChromeUserAgent,
     getAuthPlatform,
     getAuthPlatformVersion,
     registerAuthHeaderSpoofing,
+    AUTH_STUB_SCRIPT,
 };
